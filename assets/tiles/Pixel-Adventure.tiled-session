@@ -7,6 +7,20 @@
     "expandedProjectPaths": [
     ],
     "fileStates": {
+        "Level-01.tmx": {
+            "expandedObjectLayers": [
+                2
+            ],
+            "scale": 1,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 349.5,
+                "y": 267.5
+            }
+        },
+        "Pixel Adventure.tsx": {
+            "scaleInEditor": 1
+        }
     },
     "last.imagePath": "/Users/mac/Documents/flutter_game/assets/images/Terrain",
     "map.height": 23,
@@ -18,6 +32,7 @@
     ],
     "project": "Pixel-Adventure.tiled-project",
     "recentFiles": [
+        "Pixel Adventure.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
