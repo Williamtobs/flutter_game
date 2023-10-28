@@ -15,10 +15,14 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+## Packages
+1. Flame: https://pub.dev/packages/flame
+2. Flame Tiled: https://pub.dev/packages/flame_tiled
 
-# Assets Website 
+
+## Assets Website 
 
 Downloaded game assets from [Pixel Frog](https://pixelfrog-assets.itch.io/pixel-adventure-1)
 
-# Tiled Editor
+## Tiled Editor
 1. Tiled: Dowloaded from https://www.mapeditor.org 
