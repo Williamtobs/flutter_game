@@ -1,6 +1,6 @@
-# flutter_game
+# Pixel Adventure
 
-A new Flutter project.
+A Flutter game created with Flutter Flame.
 
 ## Getting Started
 
@@ -14,3 +14,8 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+
+## Website Assets
+
+Downloaded game assets from [Pixel Frog](https://pixelfrog-assets.itch.io/pixel-adventure-1)
