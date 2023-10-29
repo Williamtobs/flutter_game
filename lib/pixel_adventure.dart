@@ -1,8 +1,7 @@
-import 'dart:ui';
-
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_game/actors/player.dart';
 import 'package:flutter_game/levels/level.dart';
 
@@ -11,9 +10,11 @@ class PixelAdventure extends FlameGame
   @override
   Color backgroundColor() => const Color(0xFF211F30);
 
-  Player player = Player(char: 'Ninja Frog');
+  Player player = Player(char: 'Pink Man');
   //create joystick component to control the player
   late JoystickComponent joystick;
+
+  // bool showJoystick = false;
 
   late final CameraComponent cam;
 
@@ -23,7 +24,7 @@ class PixelAdventure extends FlameGame
     await images.loadAllImages();
 
     final level = Level(
-      levelName: 'Level-02',
+      levelName: 'Level-01',
       player: player,
     );
 
@@ -38,6 +39,42 @@ class PixelAdventure extends FlameGame
     return super.onLoad();
   }
 
+  @override
+  void update(double dt) {
+    updateJoystick();
+    super.update(dt);
+  }
+
   //creating joystick
-  void addJoyStick() {}
+  void addJoyStick() {
+    joystick = JoystickComponent(
+      knob: SpriteComponent(
+        sprite: Sprite(images.fromCache('HUD/knob.png')),
+      ),
+      background: SpriteComponent(
+        sprite: Sprite(images.fromCache('HUD/Joystick.png')),
+      ),
+      margin: const EdgeInsets.only(left: 32, bottom: 32),
+    );
+
+    //we add the joystick to the game
+    add(joystick);
+  }
+
+  void updateJoystick() {
+    switch (joystick.direction) {
+      case JoystickDirection.left:
+      case JoystickDirection.upLeft:
+      case JoystickDirection.downLeft:
+        player.direction = PlayerDirection.left;
+        break;
+      case JoystickDirection.right:
+      case JoystickDirection.upRight:
+      case JoystickDirection.downRight:
+        player.direction = PlayerDirection.right;
+        break;
+      default:
+        player.direction = PlayerDirection.none;
+    }
+  }
 }
