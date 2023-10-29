@@ -3,9 +3,10 @@ import 'package:flame_tiled/flame_tiled.dart';
 import 'package:flutter_game/actors/player.dart';
 
 class Level extends World {
+  final Player player;
   final String levelName;
 
-  Level({required this.levelName});
+  Level({required this.levelName, required this.player});
 
   late TiledComponent level;
 
@@ -23,9 +24,10 @@ class Level extends World {
       switch (spawnPoint.class_) {
         case 'Player':
           //we add the player to the level
-          final player = Player(
-              char: 'Ninja Frog',
-              position: Vector2(spawnPoint.x, spawnPoint.y));
+          // final player = Player(
+          //     char: 'Ninja Frog',
+          //     position: Vector2(spawnPoint.x, spawnPoint.y));
+          player.position = Vector2(spawnPoint.x, spawnPoint.y);
           add(player);
           break;
         default:

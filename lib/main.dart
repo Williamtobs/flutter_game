@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_game/pixel_adventure.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //Set full screen and landscape orientation
-  Flame.device.fullScreen();
-  Flame.device.setLandscape();
+  await Flame.device.fullScreen();
+  await Flame.device.setLandscape();
 
   PixelAdventure game = PixelAdventure();
   //to disable app restart on every reload
