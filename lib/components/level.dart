@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 import 'package:flame_tiled/flame_tiled.dart';
-import 'package:flutter_game/actors/player.dart';
+import 'package:flutter_game/components/player.dart';
 
 class Level extends World {
   final Player player;
