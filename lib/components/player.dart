@@ -1,5 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_game/components/collision_block.dart';
+import 'package:flutter_game/components/utils.dart';
 import 'package:flutter_game/pixel_adventure.dart';
 
 enum PlayerState {
@@ -10,12 +12,6 @@ enum PlayerState {
   // attack,
   // hurt,
   // dead,
-}
-
-enum PlayerDirection {
-  left,
-  right,
-  none,
 }
 
 //we use SpriteAnimationGroupComponent to animate the players
@@ -33,14 +29,23 @@ class Player extends SpriteAnimationGroupComponent
   final double stepTime = 0.05;
 
   //we need player direction, move speed and velocity to move the player
-  PlayerDirection direction = PlayerDirection.none;
+  // PlayerDirection direction = PlayerDirection.none; We get rid of it now
+
+  final double _gravity = 9.8;
+  final double _jumpForce = 250;
+  final double _terminalVelocity = 300;
+  double horizontalMovement = 0;
   double moveSpeed = 100;
   Vector2 velocity = Vector2.zero();
-  bool isFacingRight = true; //we use this to flip the player
+  bool isOnGround = false;
+  bool hasJumped = false;
+  // bool isFacingRight = true; //we use this to flip the player //we dont need it again
+  List<CollisionBlock> collisionBlocks = [];
 
   @override
   Future<void> onLoad() async {
     _loadAllAnimations();
+    debugMode = true;
     return super.onLoad();
   }
 
@@ -48,12 +53,18 @@ class Player extends SpriteAnimationGroupComponent
   @override
   void update(double dt) {
     _updatePlayerMovement(dt);
+    _updatePlayerState();
+    _checkHorizontalCollisions();
+    //check horizontal collisions before applying gravity
+    _applyGravity(dt);
+    _checkVerticalCollisions();
     super.update(dt);
   }
 
   //we use onKeyEvent to get the key pressed
   @override
   bool onKeyEvent(RawKeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    horizontalMovement = 0;
     //we check if the key pressed is left arrow or A
     final isLeftKeyPressed =
         keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
@@ -64,16 +75,22 @@ class Player extends SpriteAnimationGroupComponent
         keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
             keysPressed.contains(LogicalKeyboardKey.keyD);
 
+    horizontalMovement += isLeftKeyPressed ? -1 : 0;
+    horizontalMovement += isRightKeyPressed ? 1 : 0;
+
+    hasJumped = keysPressed.contains(LogicalKeyboardKey.space);
+
     //do nothing if both keys are pressed
-    if (isLeftKeyPressed && isRightKeyPressed) {
-      direction = PlayerDirection.none;
-    } else if (isLeftKeyPressed) {
-      direction = PlayerDirection.left;
-    } else if (isRightKeyPressed) {
-      direction = PlayerDirection.right;
-    } else {
-      direction = PlayerDirection.none;
-    }
+    // if (isLeftKeyPressed && isRightKeyPressed) {
+    //   direction = PlayerDirection.none;
+    // } else if (isLeftKeyPressed) {
+    //   direction = PlayerDirection.left;
+    // } else if (isRightKeyPressed) {
+    //   direction = PlayerDirection.right;
+    // } else {
+    //   direction = PlayerDirection.none;
+    // }
+    //we remove the if(s) statement above
     return super.onKeyEvent(event, keysPressed);
   }
 
@@ -108,40 +125,96 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   void _updatePlayerMovement(double dt) {
-    //we will create direction axis, left is negative and right is positive
-    double dirX = 0.0;
-    //we will use switch statement to check the direction
-    switch (direction) {
-      case PlayerDirection.left:
-        if (isFacingRight) {
-          //we flip the player
-          flipHorizontallyAroundCenter();
-          isFacingRight = false;
-        }
-        //we set the current state to run
-        current = PlayerState.run;
-        dirX -= moveSpeed;
-        break;
-      case PlayerDirection.right:
-        if (!isFacingRight) {
-          //we flip the player
-          flipHorizontallyAroundCenter();
-          isFacingRight = true;
-        }
-        //we set the current state to run
-        current = PlayerState.run;
-        dirX += moveSpeed;
-        break;
-      case PlayerDirection.none:
-        //we set the current state to idle
-        current = PlayerState.idle;
-        dirX = velocity.x * 0.92;
-        break;
-      default:
+    // we get rid of all the above code
+
+    if (hasJumped && isOnGround) {
+      _playerJump(dt);
+    }
+
+    if (velocity.y > _gravity) {
+      isOnGround = false;
     }
     //we set the velocity to the direction
-    velocity = Vector2(dirX, 0.0);
+    velocity.x = horizontalMovement * moveSpeed;
     //we update the position of the player
-    position += velocity * dt;
+    position.x += velocity.x * dt;
+  }
+
+  void _playerJump(double dt) {
+    if (isOnGround) {
+      velocity.y = -_jumpForce;
+      position.y += velocity.y * dt;
+      isOnGround = false;
+      hasJumped = false;
+    }
+  }
+
+  void _updatePlayerState() {
+    PlayerState playerState = PlayerState.idle;
+    if (velocity.x < 0 && scale.x > 0) {
+      flipHorizontallyAroundCenter();
+    } else if (velocity.x > 0 && scale.x < 0) {
+      flipHorizontallyAroundCenter();
+    }
+
+    //Check if the player is moving set the state to run
+    if (velocity.x > 0 || velocity.x < 0) {
+      playerState = PlayerState.run;
+    }
+
+    current = playerState;
+  }
+
+  void _checkHorizontalCollisions() {
+    for (final block in collisionBlocks) {
+      if (!block.isPlatform) {
+        if (checkCollision(this, block)) {
+          if (velocity.x > 0) {
+            velocity.x = 0;
+            position.x = block.x - width;
+            break;
+          }
+          if (velocity.x < 0) {
+            velocity.x = 0;
+            position.x = block.x + block.width + width;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  void _applyGravity(double dt) {
+    velocity.y += _gravity;
+    velocity.y = velocity.y.clamp(-_jumpForce, _terminalVelocity);
+    position.y += velocity.y * dt;
+  }
+
+  void _checkVerticalCollisions() {
+    for (final block in collisionBlocks) {
+      if (block.isPlatform) {
+        if (checkCollision(this, block)) {
+          if (velocity.y > 0) {
+            velocity.y = 0;
+            position.y = block.y - width;
+            isOnGround = true;
+            break;
+          }
+        }
+      } else {
+        if (checkCollision(this, block)) {
+          if (velocity.y > 0) {
+            velocity.y = 0;
+            position.y = block.y - width;
+            isOnGround = true;
+            break;
+          }
+          if (velocity.y < 0) {
+            velocity.y = 0;
+            position.y = block.y + block.height + height;
+          }
+        }
+      }
+    }
   }
 }
