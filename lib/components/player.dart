@@ -7,8 +7,8 @@ import 'package:flutter_game/pixel_adventure.dart';
 enum PlayerState {
   idle,
   run,
-  // jump,
-  // fall,
+  jump,
+  fall,
   // attack,
   // hurt,
   // dead,
@@ -21,12 +21,14 @@ class Player extends SpriteAnimationGroupComponent
   final String char;
   Player({position, this.char = 'Ninja Frog'}) : super(position: position);
 
+  final double stepTime = 0.05;
   //first state of the player is idle
   late final SpriteAnimation idleAnimation;
 
   late final SpriteAnimation runAnimation;
+  late final SpriteAnimation jumpingAnimation;
 
-  final double stepTime = 0.05;
+  late final SpriteAnimation fallingAnimation;
 
   //we need player direction, move speed and velocity to move the player
   // PlayerDirection direction = PlayerDirection.none; We get rid of it now
@@ -99,6 +101,12 @@ class Player extends SpriteAnimationGroupComponent
     idleAnimation = _sprintAnimation('Idle', amount: 11);
 
     runAnimation = _sprintAnimation('Run', amount: 12);
+
+    //we load the jumping animation
+    jumpingAnimation = _sprintAnimation('Jump', amount: 1);
+
+    //we load the falling animation
+    fallingAnimation = _sprintAnimation('Fall', amount: 1);
 
     //List of all animations
     animations = {
